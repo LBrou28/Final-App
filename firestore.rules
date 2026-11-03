@@ -23,6 +23,10 @@ service cloud.firestore {
         get(/databases/$(database)/documents/inviteCodes/$(request.resource.data.inviteCode)).data.householdId == householdId;
     }
 
+    function changedOnly(allowedFields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
+    }
+
     match /users/{userId} {
       allow create, read, update: if signedIn() && request.auth.uid == userId;
       allow delete: if false;
@@ -34,44 +38,100 @@ service cloud.firestore {
       allow get: if signedIn();
       allow list: if false;
       allow create: if signedIn() &&
+        request.resource.data.createdBy == request.auth.uid &&
+        request.resource.data.createdAt == request.time &&
         getAfter(/databases/$(database)/documents/households/$(request.resource.data.householdId)).data.ownerId == request.auth.uid;
       allow update, delete: if signedIn() &&
         isOwner(resource.data.householdId);
     }
 
     match /households/{householdId} {
-      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow create: if signedIn() &&
+        request.resource.data.ownerId == request.auth.uid &&
+        request.resource.data.createdAt == request.time;
       allow read: if isMember(householdId);
-      allow update, delete: if isOwner(householdId);
+      allow update: if isOwner(householdId) &&
+        request.resource.data.ownerId == resource.data.ownerId &&
+        request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isOwner(householdId);
 
       match /members/{memberId} {
         allow read: if isMember(householdId);
         allow create: if signedIn() && (
           (request.resource.data.userId == memberId &&
             request.resource.data.role == 'owner' &&
+            request.resource.data.joinedAt == request.time &&
             getAfter(/databases/$(database)/documents/households/$(householdId)).data.ownerId == request.auth.uid) ||
           (request.auth.uid == memberId &&
             request.resource.data.userId == memberId &&
+            request.resource.data.role == 'member' &&
+            request.resource.data.joinedAt == request.time &&
             hasValidInvite(householdId))
         );
-        allow update, delete: if isOwner(householdId) || request.auth.uid == memberId;
+        // A member may leave, but only an owner can edit a role or membership.
+        allow update: if isOwner(householdId);
+        allow delete: if isOwner(householdId) || request.auth.uid == memberId;
       }
 
       match /groceryItems/{itemId} {
-        allow read, create: if isMember(householdId);
-        allow update, delete: if isMember(householdId);
+        allow read: if isMember(householdId);
+        allow create: if isMember(householdId) &&
+          request.resource.data.createdBy == request.auth.uid &&
+          request.resource.data.createdAt == request.time &&
+          request.resource.data.isPurchased == false &&
+          !request.resource.data.keys().hasAny(['purchasedBy', 'purchasedAt']);
+        allow update: if isMember(householdId) &&
+          changedOnly(['name', 'quantity', 'isPurchased', 'purchasedBy', 'purchasedAt']) &&
+          (
+            !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['isPurchased', 'purchasedBy', 'purchasedAt']) ||
+            (
+              request.resource.data.isPurchased == true &&
+              request.resource.data.purchasedBy == request.auth.uid &&
+              request.resource.data.purchasedAt == request.time
+            )
+          );
+        allow delete: if isMember(householdId);
       }
 
       match /pantryItems/{itemId} {
-        allow read, create, update, delete: if isMember(householdId);
+        allow read: if isMember(householdId);
+        allow create: if isMember(householdId) &&
+          request.resource.data.createdBy == request.auth.uid &&
+          request.resource.data.updatedBy == request.auth.uid &&
+          request.resource.data.createdAt == request.time &&
+          request.resource.data.updatedAt == request.time;
+        allow update: if isMember(householdId) &&
+          changedOnly(['name', 'quantity', 'storageLocationId', 'expiresOn', 'updatedBy', 'updatedAt']) &&
+          request.resource.data.updatedBy == request.auth.uid &&
+          request.resource.data.updatedAt == request.time;
+        allow delete: if isMember(householdId);
       }
 
       match /storageLocations/{locationId} {
-        allow read, create, update, delete: if isMember(householdId);
+        allow read: if isMember(householdId);
+        allow create: if isMember(householdId) &&
+          request.resource.data.createdBy == request.auth.uid &&
+          request.resource.data.createdAt == request.time;
+        allow update: if isMember(householdId) &&
+          changedOnly(['name', 'sortOrder', 'updatedBy', 'updatedAt']) &&
+          request.resource.data.updatedBy == request.auth.uid &&
+          request.resource.data.updatedAt == request.time;
+        allow delete: if isMember(householdId);
       }
 
       match /favoriteStores/{storeId} {
-        allow read, create, update, delete: if isMember(householdId);
+        allow read: if isMember(householdId);
+        allow create: if isMember(householdId) &&
+          request.resource.data.createdBy == request.auth.uid &&
+          request.resource.data.createdAt == request.time;
+        allow update: if isMember(householdId) &&
+          changedOnly([
+            'name', 'address', 'isHouseholdFavorite', 'location', 'updatedBy', 'updatedAt'
+          ]) &&
+          request.resource.data.updatedBy == request.auth.uid &&
+          request.resource.data.updatedAt == request.time;
+        allow delete: if isMember(householdId);
       }
     }
   }

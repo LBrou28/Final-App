@@ -125,6 +125,10 @@ class HouseholdRepository {
     'isPurchased': false,
   });
 
+  /// Marks an item purchased without creating pantry inventory.
+  ///
+  /// Prefer [purchaseToPantry] for the normal purchase flow so both writes are
+  /// committed together.
   Future<void> markGroceryItemPurchased({
     required String householdId,
     required String itemId,
@@ -153,9 +157,52 @@ class HouseholdRepository {
     'quantity': quantity,
     'storageLocationId': storageLocationId,
     'expiresOn': expiresOn == null ? null : Timestamp.fromDate(expiresOn),
+    'createdBy': _uid,
     'createdAt': FieldValue.serverTimestamp(),
     'updatedBy': _uid,
+    'updatedAt': FieldValue.serverTimestamp(),
   });
+
+  /// Atomically converts one unpurchased grocery item into pantry inventory.
+  /// If either write cannot be authorized, neither change is committed.
+  Future<void> purchaseToPantry({
+    required String householdId,
+    required String groceryItemId,
+    required String storageLocationId,
+    DateTime? expiresOn,
+  }) async {
+    final grocery = _groceryItems(householdId).doc(groceryItemId);
+    final pantry = _pantryItems(householdId).doc();
+
+    await _firestore.runTransaction((transaction) async {
+      final grocerySnapshot = await transaction.get(grocery);
+      if (!grocerySnapshot.exists) {
+        throw StateError('The grocery item no longer exists.');
+      }
+      final data = grocerySnapshot.data()!;
+      if (data['isPurchased'] == true) {
+        throw StateError('The grocery item has already been purchased.');
+      }
+
+      final now = FieldValue.serverTimestamp();
+      transaction.update(grocery, {
+        'isPurchased': true,
+        'purchasedBy': _uid,
+        'purchasedAt': now,
+      });
+      transaction.set(pantry, {
+        'name': data['name'] as String,
+        'quantity': data['quantity'] as num,
+        'storageLocationId': storageLocationId,
+        'expiresOn': expiresOn == null ? null : Timestamp.fromDate(expiresOn),
+        'groceryItemId': groceryItemId,
+        'createdBy': _uid,
+        'createdAt': now,
+        'updatedBy': _uid,
+        'updatedAt': now,
+      });
+    });
+  }
 
   Stream<List<FavoriteStore>> watchFavoriteStores(String householdId) =>
       _favoriteStores(householdId)

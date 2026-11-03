@@ -34,6 +34,14 @@ first, then the closest saved store when a location is available. Its companion
 `StoreRecommendationCard` exposes a maps-directions handoff and always shows a
 clear reason without making claims about prices or inventory.
 
+## Purchase-to-pantry integrity
+
+Call `HouseholdRepository.purchaseToPantry` when a grocery item is bought. It
+uses a single Firestore transaction to mark the grocery item purchased and add
+its pantry item, so a failed authorization or conflicting edit cannot leave the
+two collections out of sync. Rules protect `createdBy`, timestamps, owner IDs,
+and membership roles from client-side changes.
+
 ## Android configuration
 
 The Android app is registered as `com.lbrou28.pantrypal`. FlutterFire generated
