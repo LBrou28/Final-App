@@ -38,10 +38,10 @@ class HouseholdMember {
   final DateTime? joinedAt;
 
   factory HouseholdMember.fromMap(Map<String, dynamic> data) => HouseholdMember(
-        userId: data['userId'] as String,
-        role: data['role'] as String,
-        joinedAt: (data['joinedAt'] as Timestamp?)?.toDate(),
-      );
+    userId: data['userId'] as String,
+    role: data['role'] as String,
+    joinedAt: (data['joinedAt'] as Timestamp?)?.toDate(),
+  );
 }
 
 class GroceryItem {

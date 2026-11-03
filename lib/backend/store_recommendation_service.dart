@@ -29,10 +29,14 @@ class StoreRecommendationService {
     final allStores = List<FavoriteStore>.from(stores);
     if (allStores.isEmpty) return null;
 
-    final favorites = allStores.where((store) => store.isHouseholdFavorite).toList();
+    final favorites = allStores
+        .where((store) => store.isHouseholdFavorite)
+        .toList();
     final candidates = favorites.isNotEmpty ? favorites : allStores;
     final hasUserLocation = userLatitude != null && userLongitude != null;
-    final withLocation = candidates.where((store) => store.hasLocation).toList();
+    final withLocation = candidates
+        .where((store) => store.hasLocation)
+        .toList();
 
     FavoriteStore selected;
     double? distanceKilometers;
@@ -65,8 +69,8 @@ class StoreRecommendationService {
     final reason = selected.isHouseholdFavorite
         ? 'Household favorite'
         : distanceKilometers == null
-            ? 'Saved store'
-            : 'Closest saved store';
+        ? 'Saved store'
+        : 'Closest saved store';
     return StoreRecommendation(
       store: selected,
       reason: reason,
@@ -94,12 +98,15 @@ class StoreRecommendationService {
     const earthRadiusKilometers = 6371.0;
     final latitudeDelta = _radians(toLatitude - fromLatitude);
     final longitudeDelta = _radians(toLongitude - fromLongitude);
-    final haversine = math.sin(latitudeDelta / 2) * math.sin(latitudeDelta / 2) +
+    final haversine =
+        math.sin(latitudeDelta / 2) * math.sin(latitudeDelta / 2) +
         math.cos(_radians(fromLatitude)) *
             math.cos(_radians(toLatitude)) *
             math.sin(longitudeDelta / 2) *
             math.sin(longitudeDelta / 2);
-    return earthRadiusKilometers * 2 * math.atan2(math.sqrt(haversine), math.sqrt(1 - haversine));
+    return earthRadiusKilometers *
+        2 *
+        math.atan2(math.sqrt(haversine), math.sqrt(1 - haversine));
   }
 
   double _radians(double degrees) => degrees * math.pi / 180;

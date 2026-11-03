@@ -11,8 +11,8 @@ import 'models.dart';
 /// unguarded top-level collections or duplicating Firestore path logic.
 class HouseholdRepository {
   HouseholdRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
-      : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
 
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
@@ -39,8 +39,9 @@ class HouseholdRepository {
   CollectionReference<Map<String, dynamic>> _pantryItems(String householdId) =>
       _household(householdId).collection('pantryItems');
 
-  CollectionReference<Map<String, dynamic>> _favoriteStores(String householdId) =>
-      _household(householdId).collection('favoriteStores');
+  CollectionReference<Map<String, dynamic>> _favoriteStores(
+    String householdId,
+  ) => _household(householdId).collection('favoriteStores');
 
   /// Creates the household, owner membership, and non-enumerable invite in a
   /// single atomic batch. Keep the invite code long enough to resist guessing.
@@ -72,7 +73,10 @@ class HouseholdRepository {
   /// Joins only when the exact, non-listable invite-code document exists.
   Future<String> joinHousehold({required String inviteCode}) async {
     final normalizedCode = inviteCode.trim().toUpperCase();
-    final invite = await _firestore.collection('inviteCodes').doc(normalizedCode).get();
+    final invite = await _firestore
+        .collection('inviteCodes')
+        .doc(normalizedCode)
+        .get();
     if (!invite.exists) throw StateError('That invite code is not valid.');
 
     final householdId = invite.data()!['householdId'] as String;
@@ -90,8 +94,11 @@ class HouseholdRepository {
       .where('userId', isEqualTo: _uid)
       .snapshots()
       .asyncMap((members) async {
-        final households = await Future.wait(members.docs.map((member) =>
-            _household(member.reference.parent.parent!.id).get()));
+        final households = await Future.wait(
+          members.docs.map(
+            (member) => _household(member.reference.parent.parent!.id).get(),
+          ),
+        );
         return households
             .where((household) => household.exists)
             .map(Household.fromDocument)
@@ -99,7 +106,10 @@ class HouseholdRepository {
       });
 
   Stream<List<GroceryItem>> watchGroceryItems(String householdId) =>
-      _groceryItems(householdId).orderBy('createdAt', descending: true).snapshots().map(
+      _groceryItems(householdId)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map(
             (snapshot) => snapshot.docs.map(GroceryItem.fromDocument).toList(),
           );
 
@@ -107,29 +117,30 @@ class HouseholdRepository {
     required String householdId,
     required String name,
     required num quantity,
-  }) =>
-      _groceryItems(householdId).add({
-        'name': name.trim(),
-        'quantity': quantity,
-        'createdBy': _uid,
-        'createdAt': FieldValue.serverTimestamp(),
-        'isPurchased': false,
-      });
+  }) => _groceryItems(householdId).add({
+    'name': name.trim(),
+    'quantity': quantity,
+    'createdBy': _uid,
+    'createdAt': FieldValue.serverTimestamp(),
+    'isPurchased': false,
+  });
 
   Future<void> markGroceryItemPurchased({
     required String householdId,
     required String itemId,
-  }) =>
-      _groceryItems(householdId).doc(itemId).update({
-        'isPurchased': true,
-        'purchasedBy': _uid,
-        'purchasedAt': FieldValue.serverTimestamp(),
-      });
+  }) => _groceryItems(householdId).doc(itemId).update({
+    'isPurchased': true,
+    'purchasedBy': _uid,
+    'purchasedAt': FieldValue.serverTimestamp(),
+  });
 
-  Stream<List<PantryItem>> watchPantryItems(String householdId) => _pantryItems(householdId)
-      .orderBy('expiresOn')
-      .snapshots()
-      .map((snapshot) => snapshot.docs.map(PantryItem.fromDocument).toList());
+  Stream<List<PantryItem>> watchPantryItems(String householdId) =>
+      _pantryItems(householdId)
+          .orderBy('expiresOn')
+          .snapshots()
+          .map(
+            (snapshot) => snapshot.docs.map(PantryItem.fromDocument).toList(),
+          );
 
   Future<void> addPantryItem({
     required String householdId,
@@ -137,20 +148,22 @@ class HouseholdRepository {
     required num quantity,
     required String storageLocationId,
     DateTime? expiresOn,
-  }) =>
-      _pantryItems(householdId).add({
-        'name': name.trim(),
-        'quantity': quantity,
-        'storageLocationId': storageLocationId,
-        'expiresOn': expiresOn == null ? null : Timestamp.fromDate(expiresOn),
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedBy': _uid,
-      });
+  }) => _pantryItems(householdId).add({
+    'name': name.trim(),
+    'quantity': quantity,
+    'storageLocationId': storageLocationId,
+    'expiresOn': expiresOn == null ? null : Timestamp.fromDate(expiresOn),
+    'createdAt': FieldValue.serverTimestamp(),
+    'updatedBy': _uid,
+  });
 
-  Stream<List<FavoriteStore>> watchFavoriteStores(String householdId) => _favoriteStores(
-        householdId,
-      ).orderBy('name').snapshots().map(
-            (snapshot) => snapshot.docs.map(FavoriteStore.fromDocument).toList(),
+  Stream<List<FavoriteStore>> watchFavoriteStores(String householdId) =>
+      _favoriteStores(householdId)
+          .orderBy('name')
+          .snapshots()
+          .map(
+            (snapshot) =>
+                snapshot.docs.map(FavoriteStore.fromDocument).toList(),
           );
 
   Future<void> saveFavoriteStore({
@@ -177,11 +190,13 @@ class HouseholdRepository {
   Future<void> deleteFavoriteStore({
     required String householdId,
     required String storeId,
-  }) =>
-      _favoriteStores(householdId).doc(storeId).delete();
+  }) => _favoriteStores(householdId).doc(storeId).delete();
 
   String _newInviteCode() {
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    return List.generate(10, (_) => alphabet[_random.nextInt(alphabet.length)]).join();
+    return List.generate(
+      10,
+      (_) => alphabet[_random.nextInt(alphabet.length)],
+    ).join();
   }
 }

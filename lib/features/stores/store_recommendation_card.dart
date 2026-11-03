@@ -18,7 +18,9 @@ class StoreRecommendationCard extends StatelessWidget {
         child: ListTile(
           leading: Icon(Icons.storefront_outlined),
           title: Text('No saved stores yet'),
-          subtitle: Text('Add a household favorite to receive a recommendation.'),
+          subtitle: Text(
+            'Add a household favorite to receive a recommendation.',
+          ),
         ),
       );
     }
@@ -30,10 +32,13 @@ class StoreRecommendationCard extends StatelessWidget {
       child: ListTile(
         leading: const Icon(Icons.storefront),
         title: Text(item.store.name),
-        subtitle: Text([item.reason, distance, item.store.address]
-            .whereType<String>()
-            .where((part) => part.isNotEmpty)
-            .join(' • ')),
+        subtitle: Text(
+          [
+            item.reason,
+            distance,
+            item.store.address,
+          ].whereType<String>().where((part) => part.isNotEmpty).join(' • '),
+        ),
         trailing: IconButton(
           tooltip: 'Open directions',
           icon: const Icon(Icons.directions),
