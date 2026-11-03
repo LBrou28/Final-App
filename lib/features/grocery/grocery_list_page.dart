@@ -21,6 +21,31 @@ class _GroceryListPageState extends State<GroceryListPage> {
     }
   }
 
+  Future<void> _changePurchaseStatus(
+    _GroceryListItem item,
+    bool isPurchased,
+  ) async {
+    if (!isPurchased) {
+      setState(() {
+        item.isPurchased = false;
+        item.pantryDetails = null;
+      });
+      return;
+    }
+
+    final details = await showDialog<_PantryDetails>(
+      context: context,
+      builder: (_) => _MoveToPantryDialog(itemName: item.name),
+    );
+
+    if (details != null) {
+      setState(() {
+        item.isPurchased = true;
+        item.pantryDetails = details;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,9 +65,13 @@ class _GroceryListPageState extends State<GroceryListPage> {
                 return CheckboxListTile(
                   value: item.isPurchased,
                   onChanged: (value) =>
-                      setState(() => item.isPurchased = value ?? false),
+                      _changePurchaseStatus(item, value ?? false),
                   title: Text(item.name),
-                  subtitle: Text('Quantity: ${item.quantityLabel}'),
+                  subtitle: Text(
+                    item.pantryDetails == null
+                        ? 'Quantity: ${item.quantityLabel}'
+                        : 'Quantity: ${item.quantityLabel} • ${item.pantryDetails!.label}',
+                  ),
                   controlAffinity: ListTileControlAffinity.leading,
                 );
               },
@@ -62,10 +91,23 @@ class _GroceryListItem {
   final String name;
   final double quantity;
   bool isPurchased = false;
+  _PantryDetails? pantryDetails;
 
   String get quantityLabel => quantity == quantity.roundToDouble()
       ? quantity.toInt().toString()
       : quantity.toString();
+}
+
+class _PantryDetails {
+  const _PantryDetails({required this.location, this.expiresOn});
+
+  final String location;
+  final DateTime? expiresOn;
+
+  String get label {
+    if (expiresOn == null) return '$location • No expiration date';
+    return '$location • Expires ${expiresOn!.month}/${expiresOn!.day}/${expiresOn!.year}';
+  }
 }
 
 class _AddGroceryItemDialog extends StatefulWidget {
@@ -73,6 +115,84 @@ class _AddGroceryItemDialog extends StatefulWidget {
 
   @override
   State<_AddGroceryItemDialog> createState() => _AddGroceryItemDialogState();
+}
+
+class _MoveToPantryDialog extends StatefulWidget {
+  const _MoveToPantryDialog({required this.itemName});
+
+  final String itemName;
+
+  @override
+  State<_MoveToPantryDialog> createState() => _MoveToPantryDialogState();
+}
+
+class _MoveToPantryDialogState extends State<_MoveToPantryDialog> {
+  static const _locations = ['Fridge', 'Freezer', 'Cupboard'];
+  String _location = _locations.first;
+  DateTime? _expiresOn;
+
+  Future<void> _pickExpirationDate() async {
+    final now = DateTime.now();
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: _expiresOn ?? now,
+      firstDate: now,
+      lastDate: DateTime(now.year + 10),
+    );
+    if (selected != null) setState(() => _expiresOn = selected);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Move ${widget.itemName} to pantry?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DropdownButtonFormField<String>(
+            initialValue: _location,
+            decoration: const InputDecoration(labelText: 'Storage location'),
+            items: _locations
+                .map(
+                  (location) =>
+                      DropdownMenuItem(value: location, child: Text(location)),
+                )
+                .toList(),
+            onChanged: (location) => setState(() => _location = location!),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _expiresOn == null
+                      ? 'No expiration date'
+                      : 'Expires ${_expiresOn!.month}/${_expiresOn!.day}/${_expiresOn!.year}',
+                ),
+              ),
+              TextButton(
+                onPressed: _pickExpirationDate,
+                child: const Text('Choose date'),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(
+            context,
+            _PantryDetails(location: _location, expiresOn: _expiresOn),
+          ),
+          child: const Text('Move item'),
+        ),
+      ],
+    );
+  }
 }
 
 class _AddGroceryItemDialogState extends State<_AddGroceryItemDialog> {
