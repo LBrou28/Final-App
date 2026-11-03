@@ -97,3 +97,38 @@ class PantryItem {
     );
   }
 }
+
+class FavoriteStore {
+  const FavoriteStore({
+    required this.id,
+    required this.name,
+    required this.address,
+    required this.isHouseholdFavorite,
+    this.latitude,
+    this.longitude,
+  });
+
+  final String id;
+  final String name;
+  final String address;
+  final bool isHouseholdFavorite;
+  final double? latitude;
+  final double? longitude;
+
+  bool get hasLocation => latitude != null && longitude != null;
+
+  factory FavoriteStore.fromDocument(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) {
+    final data = doc.data()!;
+    final location = data['location'] as GeoPoint?;
+    return FavoriteStore(
+      id: doc.id,
+      name: data['name'] as String,
+      address: data['address'] as String? ?? '',
+      isHouseholdFavorite: data['isHouseholdFavorite'] as bool? ?? false,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+    );
+  }
+}

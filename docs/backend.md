@@ -25,9 +25,14 @@ Invite codes are retrievable only by exact document ID and cannot be listed.
 
 Use `HouseholdRepository` in `lib/backend/household_repository.dart`; do not add
 new top-level per-feature collections. It exposes creation/joining plus streams
-and writes for grocery and pantry data. Role 2 owns grocery-list UI, Role 3
-owns pantry UI, and both should receive an active `householdId` from Role 1's
-membership flow.
+and writes for grocery, pantry, and favorite-store data. Role 2 owns
+grocery-list UI, Role 3 owns pantry UI, and both should receive an active
+`householdId` from Role 1's membership flow.
+
+`StoreRecommendationService` deterministically chooses a household favorite
+first, then the closest saved store when a location is available. Its companion
+`StoreRecommendationCard` exposes a maps-directions handoff and always shows a
+clear reason without making claims about prices or inventory.
 
 ## Android configuration
 

@@ -39,6 +39,9 @@ class HouseholdRepository {
   CollectionReference<Map<String, dynamic>> _pantryItems(String householdId) =>
       _household(householdId).collection('pantryItems');
 
+  CollectionReference<Map<String, dynamic>> _favoriteStores(String householdId) =>
+      _household(householdId).collection('favoriteStores');
+
   /// Creates the household, owner membership, and non-enumerable invite in a
   /// single atomic batch. Keep the invite code long enough to resist guessing.
   Future<String> createHousehold({required String name}) async {
@@ -143,6 +146,39 @@ class HouseholdRepository {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedBy': _uid,
       });
+
+  Stream<List<FavoriteStore>> watchFavoriteStores(String householdId) => _favoriteStores(
+        householdId,
+      ).orderBy('name').snapshots().map(
+            (snapshot) => snapshot.docs.map(FavoriteStore.fromDocument).toList(),
+          );
+
+  Future<void> saveFavoriteStore({
+    required String householdId,
+    required String name,
+    required String address,
+    required bool isHouseholdFavorite,
+    double? latitude,
+    double? longitude,
+  }) {
+    if ((latitude == null) != (longitude == null)) {
+      throw ArgumentError('Latitude and longitude must be supplied together.');
+    }
+    return _favoriteStores(householdId).add({
+      'name': name.trim(),
+      'address': address.trim(),
+      'isHouseholdFavorite': isHouseholdFavorite,
+      'location': latitude == null ? null : GeoPoint(latitude, longitude!),
+      'createdBy': _uid,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> deleteFavoriteStore({
+    required String householdId,
+    required String storeId,
+  }) =>
+      _favoriteStores(householdId).doc(storeId).delete();
 
   String _newInviteCode() {
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';

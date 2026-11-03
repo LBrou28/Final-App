@@ -66,7 +66,7 @@ Flutter references: [Android builds](https://docs.flutter.dev/deployment/android
 - [ ] Implement shared grocery lists.
 - [ ] Implement purchase-to-pantry flow and inventory editing.
 - [ ] Implement Use Soon.
-- [ ] Implement favorite stores, distance-based suggestions, and directions.
+- [x] Implement favorite-store persistence, recommendation logic, and directions handoff.
 - [ ] Publish and validate household access controls on the server.
 - [ ] Add meaningful tests and obtain a successful CI APK build.
 - [ ] Test household syncing using two phones.
