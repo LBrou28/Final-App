@@ -21,7 +21,7 @@ Example: A roommate adds milk, another buys it and moves it into the fridge inve
 ## Technology and architecture
 
 - **Mobile app:** Flutter and Dart, targeting Android first.
-- **Server component:** Shared accounts, household membership, grocery lists, pantry inventory, and store preferences. Backend technology is still to be selected.
+- **Server component:** Firebase Authentication and Cloud Firestore. Firestore is configured for the `finalapp-cae16` project in `us-central1`; source-controlled rules live in `firestore.rules`.
 - **Automation:** GitHub Actions for formatting, static analysis, tests, and an Android debug APK.
 - **Distribution:** Google Play release planned; signing and store publishing will be configured separately.
 
@@ -61,13 +61,13 @@ Flutter references: [Android builds](https://docs.flutter.dev/deployment/android
 
 - [x] Initialize the Flutter Android counter demo.
 - [ ] Choose the final Android application ID before release (currently com.example.pantrypal).
-- [ ] Agree on backend technology and data model.
+- [x] Agree on backend technology and data model.
 - [ ] Implement accounts and household invitations.
 - [ ] Implement shared grocery lists.
 - [ ] Implement purchase-to-pantry flow and inventory editing.
 - [ ] Implement Use Soon.
 - [ ] Implement favorite stores, distance-based suggestions, and directions.
-- [ ] Enforce household access controls on the server.
+- [ ] Publish and validate household access controls on the server.
 - [ ] Add meaningful tests and obtain a successful CI APK build.
 - [ ] Test household syncing using two phones.
 - [ ] Record the demo video and add its link here.

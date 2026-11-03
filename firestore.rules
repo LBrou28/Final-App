@@ -1,0 +1,78 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isMember(householdId) {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid));
+    }
+
+    function isOwner(householdId) {
+      return signedIn() &&
+        get(/databases/$(database)/documents/households/$(householdId)).data.ownerId == request.auth.uid;
+    }
+
+    function hasValidInvite(householdId) {
+      return signedIn() &&
+        request.resource.data.inviteCode is string &&
+        exists(/databases/$(database)/documents/inviteCodes/$(request.resource.data.inviteCode)) &&
+        get(/databases/$(database)/documents/inviteCodes/$(request.resource.data.inviteCode)).data.householdId == householdId;
+    }
+
+    match /users/{userId} {
+      allow create, read, update: if signedIn() && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // An invite code can only be read by exact document ID. Listing codes is
+    // denied, so it cannot be used to discover households.
+    match /inviteCodes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn() &&
+        getAfter(/databases/$(database)/documents/households/$(request.resource.data.householdId)).data.ownerId == request.auth.uid;
+      allow update, delete: if signedIn() &&
+        isOwner(resource.data.householdId);
+    }
+
+    match /households/{householdId} {
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read: if isMember(householdId);
+      allow update, delete: if isOwner(householdId);
+
+      match /members/{memberId} {
+        allow read: if isMember(householdId);
+        allow create: if signedIn() && (
+          (request.resource.data.userId == memberId &&
+            request.resource.data.role == 'owner' &&
+            getAfter(/databases/$(database)/documents/households/$(householdId)).data.ownerId == request.auth.uid) ||
+          (request.auth.uid == memberId &&
+            request.resource.data.userId == memberId &&
+            hasValidInvite(householdId))
+        );
+        allow update, delete: if isOwner(householdId) || request.auth.uid == memberId;
+      }
+
+      match /groceryItems/{itemId} {
+        allow read, create: if isMember(householdId);
+        allow update, delete: if isMember(householdId);
+      }
+
+      match /pantryItems/{itemId} {
+        allow read, create, update, delete: if isMember(householdId);
+      }
+
+      match /storageLocations/{locationId} {
+        allow read, create, update, delete: if isMember(householdId);
+      }
+
+      match /favoriteStores/{storeId} {
+        allow read, create, update, delete: if isMember(householdId);
+      }
+    }
+  }
+}
