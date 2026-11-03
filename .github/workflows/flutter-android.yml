@@ -13,30 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  detect-project:
-    name: Check for Flutter source
-    runs-on: ubuntu-latest
-    outputs:
-      ready: ${{ steps.detect.outputs.ready }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Detect root Flutter project
-        id: detect
-        shell: bash
-        run: |
-          if [ -f pubspec.yaml ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Waiting for Flutter source. Add pubspec.yaml and the Android project at the repository root."
-            echo "### Waiting for Flutter source" >> "$GITHUB_STEP_SUMMARY"
-            echo "No app was built. Add the Flutter project at the repository root to enable CI." >> "$GITHUB_STEP_SUMMARY"
-          fi
-
   android:
     name: Analyze, test, and build Android
-    needs: detect-project
-    if: needs.detect-project.outputs.ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -49,6 +27,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.47.7'
           channel: stable
           cache: true
       - name: Install dependencies

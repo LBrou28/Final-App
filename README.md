@@ -2,7 +2,7 @@
 
 A Flutter Android app that helps roommates manage groceries, track pantry items, and choose where to shop.
 
-> Status: Planning. This repository currently contains the project proposal and CI configuration; the Flutter app and server are not implemented yet.
+> Status: Starter project. The Android project runs the default Flutter counter demo. PantryPal features and the server are not implemented yet.
 
 ## Project overview
 
@@ -29,19 +29,9 @@ Household data must be restricted to authorized members. Do not commit passwords
 
 ## Local development
 
-Install the Flutter stable SDK, Android SDK, and Android Studio or another Flutter-compatible editor. Run `flutter doctor` to check your environment.
+Install Flutter 3.47.7 (matching CI),, Android SDK, and Android Studio or another Flutter-compatible editor. Run `flutter doctor` to check your environment.
 
-The Flutter project should live at the repository root. Until it is added, the following app commands will not work.
-
-To initialize the Android project once, from the repository root:
-
-```sh
-flutter create --platforms=android --project-name pantrypal .
-```
-
-Preserve this README if Flutter replaces it during initialization. Commit the generated Android project, Dart source, tests, and pubspec.lock.
-
-After the Flutter source is available:
+The Flutter project lives at the repository root. Run the default counter demo on an Android emulator or connected phone:
 
 ```sh
 flutter pub get
@@ -61,9 +51,7 @@ flutter build apk --debug
 
 [`Flutter Android CI`](../../actions) runs on pushes, pull requests, and manual dispatch.
 
-Once `pubspec.yaml` exists at the root, it installs Flutter stable and Java 17, resolves dependencies, checks formatting, runs analysis and tests, and builds an Android debug APK. A successful build uploads a `pantrypal-debug-apk` artifact retained for 14 days.
-
-While the repository has no Flutter project, the detection job explicitly reports that the app is missing and skips the build job. A skipped build does **not** satisfy the class's automated-build deliverable. Commit the actual app and obtain a passing build before submission.
+It installs Flutter 3.47.7 and Java 17, resolves dependencies, checks formatting, runs analysis and tests, and builds an Android debug APK. A successful build uploads a `pantrypal-debug-apk` artifact retained for 14 days.
 
 The APK is for development and demos. This workflow does not sign a production release or publish to Google Play.
 
@@ -71,7 +59,8 @@ Flutter references: [Android builds](https://docs.flutter.dev/deployment/android
 
 ## Initial task list
 
-- [ ] Initialize the Flutter Android project and choose the Android application ID.
+- [x] Initialize the Flutter Android counter demo.
+- [ ] Choose the final Android application ID before release (currently com.example.pantrypal).
 - [ ] Agree on backend technology and data model.
 - [ ] Implement accounts and household invitations.
 - [ ] Implement shared grocery lists.
