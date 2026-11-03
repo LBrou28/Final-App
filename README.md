@@ -1,0 +1,115 @@
+# PantryPal
+
+A Flutter Android app that helps roommates manage groceries, track pantry items, and choose where to shop.
+
+> Status: Planning. This repository currently contains the project proposal and CI configuration; the Flutter app and server are not implemented yet.
+
+## Project overview
+
+Household members join with an invite code and share a grocery list and pantry inventory. PantryPal helps prevent duplicate purchases and makes food approaching its entered expiration date easier to find.
+
+## Planned first release
+
+- **Households:** Create a household, join using an invite code, and view members.
+- **Shared grocery list:** Add items and quantities, see who added them, and mark purchases.
+- **Pantry inventory:** Move purchases into the fridge, freezer, or cupboard; update quantities and mark items used up.
+- **Use Soon:** Sort items by optional, user-entered expiration dates. Dates are organizational reminders, not food-safety guarantees.
+- **Store suggestions:** Save household favorite stores, suggest nearby options using distance and preferences, and open directions. Live prices and stock availability are outside the initial scope.
+
+Example: A roommate adds milk, another buys it and moves it into the fridge inventory, and everyone can see the household already has milk.
+
+## Technology and architecture
+
+- **Mobile app:** Flutter and Dart, targeting Android first.
+- **Server component:** Shared accounts, household membership, grocery lists, pantry inventory, and store preferences. Backend technology is still to be selected.
+- **Automation:** GitHub Actions for formatting, static analysis, tests, and an Android debug APK.
+- **Distribution:** Google Play release planned; signing and store publishing will be configured separately.
+
+Household data must be restricted to authorized members. Do not commit passwords, API secrets, signing keys, or service-account credentials.
+
+## Local development
+
+Install the Flutter stable SDK, Android SDK, and Android Studio or another Flutter-compatible editor. Run `flutter doctor` to check your environment.
+
+The Flutter project should live at the repository root. Until it is added, the following app commands will not work.
+
+To initialize the Android project once, from the repository root:
+
+```sh
+flutter create --platforms=android --project-name pantrypal .
+```
+
+Preserve this README if Flutter replaces it during initialization. Commit the generated Android project, Dart source, tests, and pubspec.lock.
+
+After the Flutter source is available:
+
+```sh
+flutter pub get
+flutter run
+```
+
+Before pushing changes:
+
+```sh
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze
+flutter test
+flutter build apk --debug
+```
+
+## Automated workflow
+
+[`Flutter Android CI`](../../actions) runs on pushes, pull requests, and manual dispatch.
+
+Once `pubspec.yaml` exists at the root, it installs Flutter stable and Java 17, resolves dependencies, checks formatting, runs analysis and tests, and builds an Android debug APK. A successful build uploads a `pantrypal-debug-apk` artifact retained for 14 days.
+
+While the repository has no Flutter project, the detection job explicitly reports that the app is missing and skips the build job. A skipped build does **not** satisfy the class's automated-build deliverable. Commit the actual app and obtain a passing build before submission.
+
+The APK is for development and demos. This workflow does not sign a production release or publish to Google Play.
+
+Flutter references: [Android builds](https://docs.flutter.dev/deployment/android) and [continuous delivery](https://docs.flutter.dev/deployment/cd).
+
+## Initial task list
+
+- [ ] Initialize the Flutter Android project and choose the Android application ID.
+- [ ] Agree on backend technology and data model.
+- [ ] Implement accounts and household invitations.
+- [ ] Implement shared grocery lists.
+- [ ] Implement purchase-to-pantry flow and inventory editing.
+- [ ] Implement Use Soon.
+- [ ] Implement favorite stores, distance-based suggestions, and directions.
+- [ ] Enforce household access controls on the server.
+- [ ] Add meaningful tests and obtain a successful CI APK build.
+- [ ] Test household syncing using two phones.
+- [ ] Record the demo video and add its link here.
+- [ ] Prepare release signing, privacy policy, and Google Play listing.
+- [ ] Publish on Google Play and add its link here.
+
+Track assigned work through GitHub Issues and a project board.
+
+## Proposed four-person work split
+
+| Team member | Primary area |
+| --- | --- |
+| 1 | Accounts and household invitations |
+| 2 | Grocery list and purchase flow |
+| 3 | Pantry inventory and Use Soon |
+| 4 | Store suggestions and backend coordination |
+
+All members contribute to integration, code review, testing, and release preparation. Backend tasks should be shared across the related features.
+
+## Class deliverables
+
+| Requirement | Planned evidence |
+| --- | --- |
+| Four-person team | Team members and responsibilities documented |
+| Git repository | This repository and contribution history |
+| Demo video | Two phones sharing a household and completing a shopping flow |
+| Task list | GitHub Issues/project board and checklist above |
+| Automated build | Passing GitHub Actions run with downloadable APK |
+| Server component | Deployed backend syncing household data |
+| Android store release | Google Play listing link |
+
+**Demo video:** Pending  
+**Google Play listing:** Pending  
+**Team members:** To be added
