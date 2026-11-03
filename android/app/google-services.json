@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1061553391622",
+    "project_id": "finalapp-cae16",
+    "storage_bucket": "finalapp-cae16.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061553391622:android:5fd1552f68d878b11fdb87",
+        "android_client_info": {
+          "package_name": "com.lbrou28.pantrypal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCisFJGolCDIXDjJsDu2SEZuWoQr3KMviQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

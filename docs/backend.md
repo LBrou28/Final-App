@@ -29,13 +29,14 @@ and writes for grocery and pantry data. Role 2 owns grocery-list UI, Role 3
 owns pantry UI, and both should receive an active `householdId` from Role 1's
 membership flow.
 
-## Before running the app
+## Android configuration
 
-1. Register the final Android application ID in Firebase.
-2. Run `flutterfire configure` from the repository root to generate
-   `lib/firebase_options.dart` and connect the Android app.
-3. Initialize Firebase in `main.dart` using `DefaultFirebaseOptions`.
-4. Deploy the source-controlled rules with `firebase deploy --only firestore`.
+The Android app is registered as `com.lbrou28.pantrypal`. FlutterFire generated
+`lib/firebase_options.dart` and `android/app/google-services.json`, and app
+startup initializes Firebase with `DefaultFirebaseOptions.currentPlatform`.
+
+When adding another platform, re-run `flutterfire configure` from the
+repository root and commit the generated configuration changes.
 
 Do not enable test mode or commit credentials, signing keys, or service-account
 files. Production rules deny all client access until the membership conditions

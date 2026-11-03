@@ -60,7 +60,7 @@ Flutter references: [Android builds](https://docs.flutter.dev/deployment/android
 ## Initial task list
 
 - [x] Initialize the Flutter Android counter demo.
-- [ ] Choose the final Android application ID before release (currently com.example.pantrypal).
+- [x] Choose the final Android application ID: `com.lbrou28.pantrypal`.
 - [x] Agree on backend technology and data model.
 - [ ] Implement accounts and household invitations.
 - [ ] Implement shared grocery lists.
