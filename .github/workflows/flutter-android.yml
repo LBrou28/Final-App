@@ -1,0 +1,70 @@
+name: Flutter Android CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-project:
+    name: Check for Flutter source
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.detect.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect root Flutter project
+        id: detect
+        shell: bash
+        run: |
+          if [ -f pubspec.yaml ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Waiting for Flutter source. Add pubspec.yaml and the Android project at the repository root."
+            echo "### Waiting for Flutter source" >> "$GITHUB_STEP_SUMMARY"
+            echo "No app was built. Add the Flutter project at the repository root to enable CI." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  android:
+    name: Analyze, test, and build Android
+    needs: detect-project
+    if: needs.detect-project.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Analyze code
+        run: flutter analyze --fatal-infos
+      - name: Run tests
+        run: flutter test
+      - name: Build Android debug APK
+        run: flutter build apk --debug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: pantrypal-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
