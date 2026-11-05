@@ -2,7 +2,7 @@
 
 A Flutter Android app that helps roommates manage groceries, track pantry items, and choose where to shop.
 
-> Status: Starter project. The Android project runs the default Flutter counter demo. PantryPal features and the server are not implemented yet.
+> Status: Feature development. Grocery entry currently uses local data. Pantry, Use Soon, and recipe screens use household-scoped Firebase data; account flow, grocery integration, backend deployment, and release validation remain. See [Role 3 integration notes](docs/role-3.md).
 
 ## Project overview
 
@@ -29,9 +29,9 @@ Household data must be restricted to authorized members. Do not commit passwords
 
 ## Local development
 
-Install Flutter 3.47.7 (matching CI),, Android SDK, and Android Studio or another Flutter-compatible editor. Run `flutter doctor` to check your environment.
+Install Flutter 3.47.7 (matching CI), Android SDK, and Android Studio or another Flutter-compatible editor. Run `flutter doctor` to check your environment.
 
-The Flutter project lives at the repository root. Run the default counter demo on an Android emulator or connected phone:
+The Flutter project lives at the repository root. Run the app on an Android emulator or connected phone:
 
 ```sh
 flutter pub get
@@ -65,7 +65,8 @@ Flutter references: [Android builds](https://docs.flutter.dev/deployment/android
 - [ ] Implement accounts and household invitations.
 - [ ] Implement shared grocery lists.
 - [ ] Implement purchase-to-pantry flow and inventory editing.
-- [ ] Implement Use Soon.
+- [x] Implement pantry inventory editing and Use Soon screens (Firebase integration validation pending).
+- [x] Implement recipe suggestions and missing-ingredient writes (catalog deployment and grocery integration pending).
 - [x] Implement favorite-store persistence, recommendation logic, and directions handoff.
 - [ ] Publish and validate household access controls on the server.
 - [ ] Add meaningful tests and obtain a successful CI APK build.
