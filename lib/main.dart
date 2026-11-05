@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import 'features/grocery/grocery_list_page.dart';
 import 'features/pantry/pantry_household_gate.dart';
 import 'firebase_options.dart';
 
@@ -35,20 +34,12 @@ class _Home extends StatefulWidget {
 
 class _HomeState extends State<_Home> {
   int _selected = 0;
-  // Keep the existing local grocery list alive when visiting another screen.
-  final Widget _groceries = const GroceryListPage();
   @override
   Widget build(BuildContext context) => Scaffold(
     body: SafeArea(
-      child: Stack(
-        children: [
-          Offstage(offstage: _selected != 0, child: _groceries),
-          if (_selected != 0)
-            PantryHouseholdGate(
-              key: ValueKey(_selected),
-              showRecipes: _selected == 2,
-            ),
-        ],
+      child: PantryHouseholdGate(
+        showGroceries: _selected == 0,
+        showRecipes: _selected == 2,
       ),
     ),
     bottomNavigationBar: NavigationBar(

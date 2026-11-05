@@ -6,12 +6,18 @@ import '../../backend/models.dart';
 import '../../backend/recipe_data_source.dart';
 import 'pantry_page.dart';
 import 'recipes_page.dart';
+import '../grocery/grocery_list_page.dart';
 
 /// Role 1 can bypass this selector by passing its active household directly to
 /// PantryPage or RecipesPage. No household IDs are invented by the UI.
 class PantryHouseholdGate extends StatefulWidget {
-  const PantryHouseholdGate({super.key, this.showRecipes = false});
+  const PantryHouseholdGate({
+    super.key,
+    this.showRecipes = false,
+    this.showGroceries = false,
+  });
   final bool showRecipes;
+  final bool showGroceries;
 
   @override
   State<PantryHouseholdGate> createState() => _PantryHouseholdGateState();
@@ -41,7 +47,7 @@ class _PantryHouseholdGateState extends State<PantryHouseholdGate> {
           child: Padding(
             padding: EdgeInsets.all(24),
             child: Text(
-              'Sign in and join a household to see shared pantry items and recipe ideas.',
+              'Sign in and join a household to see shared groceries, pantry items, and recipe ideas.',
             ),
           ),
         );
@@ -51,6 +57,7 @@ class _PantryHouseholdGateState extends State<PantryHouseholdGate> {
         repository: _repository,
         recipes: _recipes,
         showRecipes: widget.showRecipes,
+        showGroceries: widget.showGroceries,
       );
     },
   );
@@ -62,10 +69,12 @@ class _HouseholdPicker extends StatefulWidget {
     required this.repository,
     required this.recipes,
     required this.showRecipes,
+    required this.showGroceries,
   });
   final HouseholdRepository repository;
   final RecipeDataSource recipes;
   final bool showRecipes;
+  final bool showGroceries;
   @override
   State<_HouseholdPicker> createState() => _HouseholdPickerState();
 }
@@ -132,7 +141,13 @@ class _HouseholdPickerState extends State<_HouseholdPicker> {
             ),
           ),
           Expanded(
-            child: widget.showRecipes
+            child: widget.showGroceries
+                ? GroceryListPage(
+                    key: ValueKey('groceries-$id'),
+                    householdId: id,
+                    source: widget.repository,
+                  )
+                : widget.showRecipes
                 ? RecipesPage(
                     key: ValueKey('recipes-$id'),
                     householdId: id,
