@@ -4,13 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'models.dart';
+import 'grocery_data_source.dart';
 import 'pantry_data_source.dart';
 
 /// The single entry point for household-scoped data.
 ///
 /// All collection paths live here so Roles 1–3 can share data without adding
 /// unguarded top-level collections or duplicating Firestore path logic.
-class HouseholdRepository implements PantryDataSource {
+class HouseholdRepository implements PantryDataSource, GroceryDataSource {
   HouseholdRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
     : _firestore = firestore ?? FirebaseFirestore.instance,
       _auth = auth ?? FirebaseAuth.instance;
@@ -18,6 +19,9 @@ class HouseholdRepository implements PantryDataSource {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
   final Random _random = Random.secure();
+
+  @override
+  String get currentUserId => _uid;
 
   String get _uid {
     final uid = _auth.currentUser?.uid;
@@ -106,6 +110,7 @@ class HouseholdRepository implements PantryDataSource {
             .toList();
       });
 
+  @override
   Stream<List<GroceryItem>> watchGroceryItems(String householdId) =>
       _groceryItems(householdId)
           .orderBy('createdAt', descending: true)
@@ -114,17 +119,57 @@ class HouseholdRepository implements PantryDataSource {
             (snapshot) => snapshot.docs.map(GroceryItem.fromDocument).toList(),
           );
 
+  @override
   Future<void> addGroceryItem({
     required String householdId,
     required String name,
     required num quantity,
-  }) => _groceryItems(householdId).add({
-    'name': name.trim(),
-    'quantity': quantity,
-    'createdBy': _uid,
-    'createdAt': FieldValue.serverTimestamp(),
-    'isPurchased': false,
-  });
+  }) async {
+    validateGroceryInput(name, quantity);
+    await _groceryItems(householdId).add({
+      'name': name.trim(),
+      'quantity': quantity,
+      'createdBy': _uid,
+      'createdAt': FieldValue.serverTimestamp(),
+      'isPurchased': false,
+    });
+  }
+
+  @override
+  Future<void> updateGroceryItem({
+    required String householdId,
+    required GroceryItem expected,
+    required String name,
+    required num quantity,
+  }) async {
+    validateGroceryInput(name, quantity);
+    final ref = _groceryItems(householdId).doc(expected.id);
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(ref);
+      checkGroceryUnchanged(
+        expected,
+        snapshot.exists ? GroceryItem.fromDocument(snapshot) : null,
+      );
+      if (expected.isPurchased) throw const GroceryConflict();
+      transaction.update(ref, {'name': name.trim(), 'quantity': quantity});
+    });
+  }
+
+  @override
+  Future<void> deleteGroceryItem({
+    required String householdId,
+    required GroceryItem expected,
+  }) async {
+    final ref = _groceryItems(householdId).doc(expected.id);
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(ref);
+      checkGroceryUnchanged(
+        expected,
+        snapshot.exists ? GroceryItem.fromDocument(snapshot) : null,
+      );
+      transaction.delete(ref);
+    });
+  }
 
   /// Marks an item purchased without creating pantry inventory.
   ///
@@ -195,12 +240,16 @@ class HouseholdRepository implements PantryDataSource {
 
   /// Atomically converts one unpurchased grocery item into pantry inventory.
   /// If either write cannot be authorized, neither change is committed.
+  @override
   Future<void> purchaseToPantry({
     required String householdId,
     required String groceryItemId,
     required String storageLocationId,
     DateTime? expiresOn,
   }) async {
+    if (!['fridge', 'freezer', 'cupboard'].contains(storageLocationId)) {
+      throw ArgumentError('Choose Fridge, Freezer, or Cupboard.');
+    }
     final grocery = _groceryItems(householdId).doc(groceryItemId);
     final pantry = _pantryItems(householdId).doc();
 
@@ -210,6 +259,7 @@ class HouseholdRepository implements PantryDataSource {
         throw StateError('The grocery item no longer exists.');
       }
       final data = grocerySnapshot.data()!;
+      validateGroceryInput(data['name'] as String, data['quantity'] as num);
       if (data['isPurchased'] == true) {
         throw StateError('The grocery item has already been purchased.');
       }
