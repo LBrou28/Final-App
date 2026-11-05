@@ -51,12 +51,14 @@ class HouseholdRepository implements PantryDataSource, GroceryDataSource {
   /// Creates the household, owner membership, and non-enumerable invite in a
   /// single atomic batch. Keep the invite code long enough to resist guessing.
   Future<String> createHousehold({required String name}) async {
+    if (name.trim().isEmpty) throw ArgumentError('Enter a household name.');
     final household = _households().doc();
     final inviteCode = _newInviteCode();
     final batch = _firestore.batch();
 
     batch.set(household, {
       'name': name.trim(),
+      'inviteCode': inviteCode,
       'ownerId': _uid,
       'createdAt': FieldValue.serverTimestamp(),
     });
@@ -78,21 +80,42 @@ class HouseholdRepository implements PantryDataSource, GroceryDataSource {
   /// Joins only when the exact, non-listable invite-code document exists.
   Future<String> joinHousehold({required String inviteCode}) async {
     final normalizedCode = inviteCode.trim().toUpperCase();
+    if (!RegExp(r'^[A-HJ-NP-Z2-9]{10}$').hasMatch(normalizedCode)) {
+      throw ArgumentError('Enter the 10-character invite code.');
+    }
     final invite = await _firestore
         .collection('inviteCodes')
         .doc(normalizedCode)
         .get();
-    if (!invite.exists) throw StateError('That invite code is not valid.');
+    if (!invite.exists) throw ArgumentError('That invite code is not valid.');
 
     final householdId = invite.data()!['householdId'] as String;
-    await _members(householdId).doc(_uid).set({
-      'userId': _uid,
-      'role': 'member',
-      'inviteCode': normalizedCode,
-      'joinedAt': FieldValue.serverTimestamp(),
+    final membership = _members(householdId).doc(_uid);
+    // Existing members must not overwrite their owner role when reusing a code.
+    await _firestore.runTransaction((transaction) async {
+      final existing = await transaction.get(membership);
+      if (existing.exists) return;
+      transaction.set(membership, {
+        'userId': _uid,
+        'role': 'member',
+        'inviteCode': normalizedCode,
+        'joinedAt': FieldValue.serverTimestamp(),
+      });
     });
     return householdId;
   }
+
+  Future<String?> householdInvite(String householdId) async {
+    final snapshot = await _household(householdId).get();
+    return snapshot.data()?['inviteCode'] as String?;
+  }
+
+  Stream<List<HouseholdMember>> watchMembers(String householdId) =>
+      _members(householdId).snapshots().map(
+        (snapshot) => snapshot.docs
+            .map((doc) => HouseholdMember.fromMap(doc.data()))
+            .toList(),
+      );
 
   Stream<List<Household>> watchHouseholdsForCurrentUser() => _firestore
       .collectionGroup('members')

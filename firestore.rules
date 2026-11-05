@@ -68,9 +68,13 @@ service cloud.firestore {
       allow delete: if isOwner(householdId);
 
       match /members/{memberId} {
+        // Supports an idempotent join transaction without granting access to
+        // any other member or household before the caller has joined.
+        allow get: if signedIn() && request.auth.uid == memberId;
         allow read: if isMember(householdId);
         allow create: if signedIn() && (
-          (request.resource.data.userId == memberId &&
+          (request.auth.uid == memberId &&
+            request.resource.data.userId == memberId &&
             request.resource.data.role == 'owner' &&
             request.resource.data.joinedAt == request.time &&
             getAfter(/databases/$(database)/documents/households/$(householdId)).data.ownerId == request.auth.uid) ||
