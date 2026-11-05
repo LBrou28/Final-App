@@ -32,6 +32,12 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // The curated catalog is published by an administrator, never by clients.
+    match /recipeCatalog/{recipeId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
     // An invite code can only be read by exact document ID. Listing codes is
     // denied, so it cannot be used to discover households.
     match /inviteCodes/{code} {
