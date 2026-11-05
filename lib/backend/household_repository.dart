@@ -4,12 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'models.dart';
+import 'pantry_data_source.dart';
 
 /// The single entry point for household-scoped data.
 ///
 /// All collection paths live here so Roles 1–3 can share data without adding
 /// unguarded top-level collections or duplicating Firestore path logic.
-class HouseholdRepository {
+class HouseholdRepository implements PantryDataSource {
   HouseholdRepository({FirebaseFirestore? firestore, FirebaseAuth? auth})
     : _firestore = firestore ?? FirebaseFirestore.instance,
       _auth = auth ?? FirebaseAuth.instance;
@@ -140,11 +141,39 @@ class HouseholdRepository {
 
   Stream<List<PantryItem>> watchPantryItems(String householdId) =>
       _pantryItems(householdId)
-          .orderBy('expiresOn')
           .snapshots()
           .map(
             (snapshot) => snapshot.docs.map(PantryItem.fromDocument).toList(),
           );
+
+  @override
+  Future<void> updatePantryItem({
+    required String householdId,
+    required String itemId,
+    required num quantity,
+    required String storageLocationId,
+    DateTime? expiresOn,
+  }) {
+    if (!quantity.isFinite || quantity <= 0) {
+      throw ArgumentError('Quantity must be a finite number greater than zero.');
+    }
+    if (storageLocationId.trim().isEmpty) {
+      throw ArgumentError('A storage location is required.');
+    }
+    return _pantryItems(householdId).doc(itemId).update({
+      'quantity': quantity,
+      'storageLocationId': storageLocationId,
+      'expiresOn': expiresOn == null ? null : Timestamp.fromDate(expiresOn),
+      'updatedBy': _uid,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  @override
+  Future<void> useUpPantryItem({
+    required String householdId,
+    required String itemId,
+  }) => _pantryItems(householdId).doc(itemId).delete();
 
   Future<void> addPantryItem({
     required String householdId,
