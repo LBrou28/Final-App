@@ -2,7 +2,7 @@
 
 A Flutter Android app that helps roommates manage groceries, track pantry items, and choose where to shop.
 
-> Status: Feature development. Grocery entry currently uses local data. Pantry, Use Soon, and recipe screens use household-scoped Firebase data; account flow, grocery integration, backend deployment, and release validation remain. See [Role 3 integration notes](docs/role-3.md).
+> Status: Feature development. Groceries, Pantry, Use Soon, and Recipes now use household-scoped Firebase repositories. Account flow, backend deployment, live integration testing, and release validation remain. See [grocery handoff](docs/role-2.md) and [pantry/recipe handoff](docs/role-3.md).
 
 ## Project overview
 
@@ -63,10 +63,10 @@ Flutter references: [Android builds](https://docs.flutter.dev/deployment/android
 - [x] Choose the final Android application ID: `com.lbrou28.pantrypal`.
 - [x] Agree on backend technology and data model.
 - [ ] Implement accounts and household invitations.
-- [ ] Implement shared grocery lists.
-- [ ] Implement purchase-to-pantry flow and inventory editing.
+- [x] Implement shared grocery lists (live Firebase validation pending).
+- [x] Implement purchase-to-pantry flow (live Firebase validation pending).
 - [x] Implement pantry inventory editing and Use Soon screens (Firebase integration validation pending).
-- [x] Implement recipe suggestions and missing-ingredient writes (catalog deployment and grocery integration pending).
+- [x] Implement recipe suggestions and missing-ingredient writes (catalog deployment and live validation pending).
 - [x] Implement favorite-store persistence, recommendation logic, and directions handoff.
 - [ ] Publish and validate household access controls on the server.
 - [ ] Add meaningful tests and obtain a successful CI APK build.
@@ -75,16 +75,23 @@ Flutter references: [Android builds](https://docs.flutter.dev/deployment/android
 - [ ] Prepare release signing, privacy policy, and Google Play listing.
 - [ ] Publish on Google Play and add its link here.
 
-Track assigned work through GitHub Issues and a project board.
+Track assigned work on [Trello](https://trello.com/b/oTiGCUaE/final-app).
 
-## Proposed four-person work split
+## Proposed three-person work split
+
+One member has left the group. Confirm the revised team size with the instructor;
+the original assignment specifies four students. This split is a proposal, not a
+record of new assignments accepted by teammates.
 
 | Team member | Primary area |
 | --- | --- |
 | 1 | Accounts and household invitations |
 | 2 | Grocery list and purchase flow |
-| 3 | Pantry inventory and Use Soon |
-| 4 | Store suggestions and backend coordination |
+| 3 | Pantry inventory, Use Soon, and recipes |
+
+The member already handling Firebase should retain backend coordination. Divide
+the departed member's remaining store UI and release work among the three members
+after accounts and the shared grocery-to-pantry flow work on two devices.
 
 All members contribute to integration, code review, testing, and release preparation. Backend tasks should be shared across the related features.
 
@@ -92,7 +99,7 @@ All members contribute to integration, code review, testing, and release prepara
 
 | Requirement | Planned evidence |
 | --- | --- |
-| Four-person team | Team members and responsibilities documented |
+| Team requirement | Three remaining members; instructor approval of revised team size pending |
 | Git repository | This repository and contribution history |
 | Demo video | Two phones sharing a household and completing a shopping flow |
 | Task list | GitHub Issues/project board and checklist above |

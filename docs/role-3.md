@@ -33,10 +33,9 @@ matching ingredients against the entire household inventory.
   and `RecipesPage(householdId: ..., pantry: repository, recipes: ...)` with its
   active household. The current selector uses the existing repository's own-
   membership query; its collection-group rule and index are source-controlled.
-- Role 2's current grocery screen holds local in-memory data. It must switch to
-  `watchGroceryItems` and `purchaseToPantry` for its purchased items to appear in
-  the real pantry, and to display ingredients added by Recipes. Those local
-  grocery items are not represented as persisted household pantry data.
+- Role 2's grocery screen now uses `watchGroceryItems` and `purchaseToPantry`.
+  All three tabs share the selected household. Recipe additions and purchases
+  still need live Firebase verification; see [Role 2 handoff](role-2.md).
 - The pantry stream intentionally does not order by expiresOn in Firestore;
   this includes older records without that optional field. Sorting is in Dart.
 - Firestore reads/writes, cross-device syncing, and rules need emulator/live
