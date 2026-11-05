@@ -1,0 +1,14 @@
+[
+  {"id":"tomato-pasta","name":"Tomato and cheese pasta","ingredients":["pasta","tomatoes","cheese","olive oil"],"instructions":["Cook pasta according to the package and drain.","Chop tomatoes and simmer in olive oil until softened.","Toss with pasta and top with cheese."]},
+  {"id":"tomato-toast","name":"Tomato toast","ingredients":["bread","tomatoes","olive oil"],"instructions":["Toast the bread.","Chop tomatoes, mix with olive oil, and spoon over toast."]},
+  {"id":"cheese-toast","name":"Cheese toast","ingredients":["bread","cheese"],"instructions":["Place cheese on bread.","Toast under a grill until the cheese melts."]},
+  {"id":"tomato-rice","name":"Tomato rice","ingredients":["rice","tomatoes","onion","olive oil"],"instructions":["Cook rice according to the package.","Soften chopped onion in olive oil, then add chopped tomatoes and simmer.","Stir the cooked rice into the tomato mixture."]},
+  {"id":"bean-wrap","name":"Bean and cheese wrap","ingredients":["tortillas","canned beans","cheese"],"instructions":["Drain and rinse canned beans, then warm in a pan.","Place beans and cheese in tortillas, fold, and heat until cheese melts."]},
+  {"id":"chickpea-salad","name":"Chickpea and tomato salad","ingredients":["canned chickpeas","tomatoes","cucumber","olive oil","lemon"],"instructions":["Drain and rinse chickpeas.","Chop tomatoes and cucumber.","Toss with chickpeas, olive oil, and lemon juice."]},
+  {"id":"potato-soup","name":"Potato and onion soup","ingredients":["potatoes","onion","vegetable broth","olive oil"],"instructions":["Soften chopped onion in olive oil.","Add diced potatoes and enough vegetable broth to cover.","Simmer until potatoes are tender, then mash some for a thicker soup."]},
+  {"id":"spinach-pasta","name":"Spinach and cheese pasta","ingredients":["pasta","spinach","cheese","olive oil"],"instructions":["Cook pasta according to the package, reserving a little cooking water.","Wilt spinach in olive oil.","Toss pasta and spinach with cheese and a splash of cooking water."]},
+  {"id":"vegetable-rice","name":"Vegetable rice bowl","ingredients":["rice","frozen vegetables","soy sauce"],"instructions":["Cook rice according to the package.","Cook frozen vegetables according to their package.","Combine and add soy sauce to taste."]},
+  {"id":"banana-oats","name":"Banana oatmeal","ingredients":["oats","milk","banana"],"instructions":["Cook oats with milk according to the oat package directions.","Slice banana and stir it into the warm oatmeal."]},
+  {"id":"yogurt-bowl","name":"Yogurt and banana bowl","ingredients":["yogurt","banana","oats"],"instructions":["Spoon yogurt into a bowl.","Top with sliced banana and oats."]},
+  {"id":"bean-potato","name":"Bean topped baked potato","ingredients":["potatoes","canned beans","cheese"],"instructions":["Scrub and pierce potatoes, then bake at 400 F until tender.","Drain and rinse beans and warm in a pan.","Split potatoes and top with beans and cheese."]}
+]
