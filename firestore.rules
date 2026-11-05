@@ -38,6 +38,12 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Permit the selector's collection-group query for the caller's own
+    // memberships. The query must constrain userId to request.auth.uid.
+    match /{path=**}/members/{memberId} {
+      allow list: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
     // An invite code can only be read by exact document ID. Listing codes is
     // denied, so it cannot be used to discover households.
     match /inviteCodes/{code} {
