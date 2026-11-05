@@ -2,7 +2,7 @@
 
 A Flutter Android app that helps roommates manage groceries, track pantry items, and choose where to shop.
 
-> Status: Feature development. Groceries, Pantry, Use Soon, and Recipes now use household-scoped Firebase repositories. Account flow, backend deployment, live integration testing, and release validation remain. See [grocery handoff](docs/role-2.md) and [pantry/recipe handoff](docs/role-3.md).
+> Status: Feature development. Account and household screens are implemented; Groceries, Pantry, Use Soon, and Recipes use household-scoped Firebase repositories. Firebase provider setup, rules deployment, live integration testing, and release validation remain. See [account setup](docs/role-1.md), [grocery handoff](docs/role-2.md), and [pantry/recipe handoff](docs/role-3.md).
 
 ## Project overview
 
@@ -62,7 +62,7 @@ Flutter references: [Android builds](https://docs.flutter.dev/deployment/android
 - [x] Initialize the Flutter Android counter demo.
 - [x] Choose the final Android application ID: `com.lbrou28.pantrypal`.
 - [x] Agree on backend technology and data model.
-- [ ] Implement accounts and household invitations.
+- [x] Implement accounts and household invitations (Firebase setup and live validation pending).
 - [x] Implement shared grocery lists (live Firebase validation pending).
 - [x] Implement purchase-to-pantry flow (live Firebase validation pending).
 - [x] Implement pantry inventory editing and Use Soon screens (Firebase integration validation pending).
@@ -79,15 +79,14 @@ Track assigned work on [Trello](https://trello.com/b/oTiGCUaE/final-app).
 
 ## Proposed three-person work split
 
-One member has left the group. Confirm the revised team size with the instructor;
-the original assignment specifies four students. This split is a proposal, not a
-record of new assignments accepted by teammates.
+One member has left the group. The instructor approved the three-person team,
+as confirmed by Luke. Luke is taking Roles 1 and 2.
 
 | Team member | Primary area |
 | --- | --- |
-| 1 | Accounts and household invitations |
-| 2 | Grocery list and purchase flow |
-| 3 | Pantry inventory, Use Soon, and recipes |
+| Luke | Accounts, household invitations, groceries, and purchase flow |
+| Trey | Firebase/backend coordination |
+| Joseph | Pantry inventory, Use Soon, and recipes |
 
 The member already handling Firebase should retain backend coordination. Divide
 the departed member's remaining store UI and release work among the three members
@@ -99,7 +98,7 @@ All members contribute to integration, code review, testing, and release prepara
 
 | Requirement | Planned evidence |
 | --- | --- |
-| Team requirement | Three remaining members; instructor approval of revised team size pending |
+| Team requirement | Three-person team approved by instructor, per Luke |
 | Git repository | This repository and contribution history |
 | Demo video | Two phones sharing a household and completing a shopping flow |
 | Task list | GitHub Issues/project board and checklist above |

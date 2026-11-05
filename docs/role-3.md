@@ -26,9 +26,9 @@ matching ingredients against the entire household inventory.
 
 ## Integration dependencies
 
-- Role 1 still needs to implement sign-in and create/join household screens. Until
-  signed in, Pantry and Recipes display an account/household explanation. No
-  fake household or anonymous account is created by these screens.
+- Role 1 now supplies sign-in and create/join household screens. See `role-1.md`
+  for provider setup and deployment requirements. No fake household or anonymous
+  account is created by these screens.
 - Role 1 can directly construct `PantryPage(householdId: ..., source: repository)`
   and `RecipesPage(householdId: ..., pantry: repository, recipes: ...)` with its
   active household. The current selector uses the existing repository's own-

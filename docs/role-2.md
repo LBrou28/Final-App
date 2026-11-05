@@ -25,8 +25,8 @@ display names await account/profile integration.
   real cross-device behavior.
 - Existing CI runs all Flutter tests, formatting, analysis, and an Android debug
   build on every push and pull request. It does not run Firebase emulator tests.
-- Role 1 must finish sign-in and create/join household UI. The current gate
-  intentionally requires an authenticated user with household membership.
+- Role 1 now supplies sign-in and create/join household UI; see `role-1.md` for
+  Firebase setup and the remaining live acceptance checks.
 - The Firebase owner must verify deployed rules/indexes and publish the recipe
   catalog using the Role 3 handoff before live testing.
 
