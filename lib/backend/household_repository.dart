@@ -139,12 +139,11 @@ class HouseholdRepository implements PantryDataSource {
     'purchasedAt': FieldValue.serverTimestamp(),
   });
 
+  @override
   Stream<List<PantryItem>> watchPantryItems(String householdId) =>
-      _pantryItems(householdId)
-          .snapshots()
-          .map(
-            (snapshot) => snapshot.docs.map(PantryItem.fromDocument).toList(),
-          );
+      _pantryItems(householdId).snapshots().map(
+        (snapshot) => snapshot.docs.map(PantryItem.fromDocument).toList(),
+      );
 
   @override
   Future<void> updatePantryItem({
@@ -155,7 +154,9 @@ class HouseholdRepository implements PantryDataSource {
     DateTime? expiresOn,
   }) {
     if (!quantity.isFinite || quantity <= 0) {
-      throw ArgumentError('Quantity must be a finite number greater than zero.');
+      throw ArgumentError(
+        'Quantity must be a finite number greater than zero.',
+      );
     }
     if (storageLocationId.trim().isEmpty) {
       throw ArgumentError('A storage location is required.');

@@ -39,16 +39,35 @@ class _HomeState extends State<_Home> {
   final Widget _groceries = const GroceryListPage();
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: SafeArea(child: Stack(children: [
-      Offstage(offstage: _selected != 0, child: _groceries),
-      if (_selected != 0) PantryHouseholdGate(key: ValueKey(_selected), showRecipes: _selected == 2),
-    ])),
-    bottomNavigationBar: NavigationBar(selectedIndex: _selected,
+    body: SafeArea(
+      child: Stack(
+        children: [
+          Offstage(offstage: _selected != 0, child: _groceries),
+          if (_selected != 0)
+            PantryHouseholdGate(
+              key: ValueKey(_selected),
+              showRecipes: _selected == 2,
+            ),
+        ],
+      ),
+    ),
+    bottomNavigationBar: NavigationBar(
+      selectedIndex: _selected,
       onDestinationSelected: (value) => setState(() => _selected = value),
       destinations: const [
-        NavigationDestination(icon: Icon(Icons.shopping_cart_outlined), label: 'Groceries'),
-        NavigationDestination(icon: Icon(Icons.kitchen_outlined), label: 'Pantry'),
-        NavigationDestination(icon: Icon(Icons.restaurant_menu), label: 'Recipes'),
-      ]),
+        NavigationDestination(
+          icon: Icon(Icons.shopping_cart_outlined),
+          label: 'Groceries',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.kitchen_outlined),
+          label: 'Pantry',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.restaurant_menu),
+          label: 'Recipes',
+        ),
+      ],
+    ),
   );
 }
